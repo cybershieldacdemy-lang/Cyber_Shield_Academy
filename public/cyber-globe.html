@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خريطة التهديدات السيبرانية المباشرة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #00ffc8;
+  --bg-dark: #000c0a;
+  --panel-bg: rgba(0, 15, 12, 0.85);
+  --border: rgba(0, 255, 200, 0.15);
+  --attack-ddos: #ff2244;
+  --attack-malware: #a855f7;
+  --attack-phishing: #00ffcc;
+  --attack-ransom: #ffcc00;
+  --attack-exploit: #3399ff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-dark); font-family: 'Cairo', sans-serif; color: #fff; }
+#canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+canvas { display: block; }
+
+/* Top Bar */
+#top-bar { position: fixed; top: 0; left: 0; right: 0; height: 60px; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; background: linear-gradient(180deg, rgba(0,20,15,0.95) 0%, rgba(0,10,8,0.7) 100%); border-bottom: 1px solid var(--border); backdrop-filter: blur(10px); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { font-family: 'Cairo', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: 1px; background: linear-gradient(90deg, #00ffc8, #00e0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand .indicator { width: 8px; height: 8px; background: #ff2244; border-radius: 50%; box-shadow: 0 0 10px #ff2244; animation: pulse 1.5s infinite; }
+nav { display: flex; gap: 10px; }
+nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 600; padding: 6px 16px; border-radius: 4px; transition: all 0.3s; }
+nav a:hover, nav a.active { color: var(--primary); background: rgba(0,255,200,0.08); }
+.top-left { display: flex; align-items: center; gap: 16px; }
+.protect-btn { background: linear-gradient(135deg, #00c896, #00a67d); color: #fff; border: none; padding: 8px 24px; border-radius: 4px; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s; }
+.protect-btn:hover { box-shadow: 0 0 20px rgba(0,200,150,0.4); transform: translateY(-1px); }
+
+/* Left Controls */
+#left-controls { position: fixed; top: 80px; left: 24px; z-index: 100; display: flex; flex-direction: column; gap: 8px; }
+.ctrl-btn { width: 40px; height: 40px; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 6px; color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s; backdrop-filter: blur(8px); }
+.ctrl-btn:hover, .ctrl-btn.active { border-color: var(--primary); color: var(--primary); box-shadow: 0 0 15px rgba(0,255,180,0.2); }
+.ctrl-btn.warning { color: #ff2244; border-color: rgba(255,34,68,0.3); }
+.ctrl-btn.warning:hover, .ctrl-btn.warning.active { border-color: #ff2244; box-shadow: 0 0 15px rgba(255,34,68,0.3); }
+
+/* Dynamic Dashboard Widget (Right) */
+#info-widget { position: fixed; top: 80px; right: 24px; width: 300px; z-index: 100; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; backdrop-filter: blur(16px); padding: 0; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,0.6); transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+#info-widget.visible { transform: translateX(0); }
+.widget-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 10px; border-bottom: 1px solid rgba(0,255,200,0.1); }
+.widget-header h2 { font-size: 26px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; margin: 0; line-height: 1; }
+.widget-header .flag { font-size: 24px; }
+.widget-header .close-btn { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 20px; cursor: pointer; transition: color 0.3s; }
+.widget-header .close-btn:hover { color: var(--primary); }
+.widget-rank { padding: 8px 20px; background: rgba(0,0,0,0.3); font-size: 13px; color: rgba(255,255,255,0.6); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,255,200,0.1); }
+.widget-rank span.rank-num { color: var(--primary); font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 16px; }
+
+.stat-list { padding: 10px 20px 15px; }
+.stat-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+.stat-row:last-child { border-bottom: none; }
+.stat-label { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.stat-indicator { width: 8px; height: 8px; border-radius: 50%; }
+.stat-value { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 700; }
+
+.stat-row.ddos .stat-indicator { background: var(--attack-ddos); box-shadow: 0 0 8px var(--attack-ddos); }
+.stat-row.ddos .stat-value { color: var(--attack-ddos); }
+.stat-row.malware .stat-indicator { background: var(--attack-malware); box-shadow: 0 0 8px var(--attack-malware); }
+.stat-row.malware .stat-value { color: var(--attack-malware); }
+.stat-row.phish .stat-indicator { background: var(--attack-phishing); box-shadow: 0 0 8px var(--attack-phishing); }
+.stat-row.phish .stat-value { color: var(--attack-phishing); }
+.stat-row.ransom .stat-indicator { background: var(--attack-ransom); box-shadow: 0 0 8px var(--attack-ransom); }
+.stat-row.ransom .stat-value { color: var(--attack-ransom); }
+.stat-row.exploit .stat-indicator { background: var(--attack-exploit); box-shadow: 0 0 8px var(--attack-exploit); }
+.stat-row.exploit .stat-value { color: var(--attack-exploit); }
+
+.widget-footer { padding: 12px 20px; border-top: 1px solid rgba(0,255,200,0.1); background: rgba(0,255,200,0.02); text-align: center; }
+.last-activity { font-size: 12px; color: rgba(255,255,255,0.5); }
+.last-activity span { color: #fff; font-family: 'Orbitron', sans-serif; }
+
+/* Filter Panel */
+#filter-panel { position: fixed; bottom: 80px; right: 24px; z-index: 100; background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; padding: 15px; backdrop-filter: blur(16px); display: flex; flex-direction: column; gap: 10px; width: 220px; }
+.filter-title { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
+.filter-item { display: flex; align-items: center; gap: 10px; cursor: pointer; opacity: 0.5; transition: opacity 0.3s; }
+.filter-item.active { opacity: 1; }
+.filter-color { width: 12px; height: 12px; border-radius: 3px; }
+.filter-name { font-size: 13px; font-weight: 600; }
+
+/* Bottom Stats Bar */
+#bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: linear-gradient(0deg, rgba(0,12,10,0.98) 0%, rgba(0,8,6,0.8) 100%); border-top: 1px solid var(--border); }
+.bottom-stats { display: flex; justify-content: center; align-items: flex-end; gap: 20px; padding: 10px 40px 10px; flex-wrap: wrap; }
+.bottom-stat { text-align: center; min-width: 100px; }
+.bottom-stat .val { font-family: 'Orbitron', sans-serif; font-size: 18px; color: #fff; letter-spacing: 1px; margin-bottom: 4px; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+.bottom-stat .label-tag { display: inline-block; padding: 3px 12px; border-radius: 3px; font-size: 11px; font-weight: 700; color: #fff; width: 100%; }
+
+/* Loading & Tooltip */
+#loader { position: fixed; inset: 0; z-index: 999; background: #000c0a; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s; }
+#loader.hidden { opacity: 0; pointer-events: none; }
+.spinner { width: 60px; height: 60px; border: 3px solid rgba(0,255,200,0.1); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+#loader p { margin-top: 24px; color: var(--primary); font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+
+#tooltip { position: fixed; background: rgba(0,0,0,0.8); border: 1px solid var(--primary); color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 14px; font-weight: 700; pointer-events: none; z-index: 200; opacity: 0; transition: opacity 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.2); } }
+
+/* Alerts Layer */
+#alerts-container { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); z-index: 150; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.alert-toast { background: rgba(255,34,68,0.9); border: 1px solid #ff2244; color: #fff; padding: 10px 20px; border-radius: 6px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 20px rgba(255,34,68,0.4); animation: slideDown 0.3s ease-out forwards, fadeOut 0.5s ease-in 3s forwards; }
+@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="spinner"></div><p>جاري تهيئة مركز العمليات الأمنية...</p></div>
+
+<div id="canvas-container"></div>
+<div id="tooltip"></div>
+<div id="alerts-container"></div>
+
+<!-- Top Bar -->
+<div id="top-bar">
+  <div class="brand">
+    <div class="indicator"></div>
+    <h1>خريطة التهديدات المباشرة</h1>
+  </div>
+  <nav>
+    <a href="#" class="active">الخريطة</a>
+    <a href="#">الإحصائيات</a>
+    <a href="#">مصادر البيانات</a>
+    <a href="#">التقارير</a>
+  </nav>
+  <div class="top-left">
+    <button class="protect-btn">حماية النظام</button>
+  </div>
+</div>
+
+<!-- Left Controls (Global) -->
+<div id="left-controls">
+  <button class="ctrl-btn" id="btn-zoom-in" title="تكبير">+</button>
+  <button class="ctrl-btn" id="btn-zoom-out" title="تصغير">−</button>
+  <button class="ctrl-btn" id="btn-reset" title="إعادة الضبط">⌂</button>
+  <button class="ctrl-btn" id="btn-play-pause" title="إيقاف/تشغيل">⏸</button>
+  <button class="ctrl-btn" id="btn-sound" title="تفعيل/إلغاء الصوت">🔇</button>
+  <button class="ctrl-btn warning" id="btn-heatmap" title="الخريطة الحرارية">🔥</button>
+</div>
+
+<!-- Filter Panel -->
+<div id="filter-panel">
+  <div class="filter-title">تصفية حسب نوع الهجوم</div>
+  <div class="filter-item active" data-type="ddos">
+    <div class="filter-color" style="background: var(--attack-ddos)"></div>
+    <div class="filter-name">حجب الخدمة (DDoS)</div>
+  </div>
+  <div class="filter-item active" data-type="malware">
+    <div class="filter-color" style="background: var(--attack-malware)"></div>
+    <div class="filter-name">برمجيات خبيثة (Malware)</div>
+  </div>
+  <div class="filter-item active" data-type="phish">
+    <div class="filter-color" style="background: var(--attack-phishing)"></div>
+    <div class="filter-name">تصيد احتيالي (Phishing)</div>
+  </div>
+  <div class="filter-item active" data-type="ransom">
+    <div class="filter-color" style="background: var(--attack-ransom)"></div>
+    <div class="filter-name">فيروس الفدية (Ransomware)</div>
+  </div>
+  <div class="filter-item active" data-type="exploit">
+    <div class="filter-color" style="background: var(--attack-exploit)"></div>
+    <div class="filter-name">ثغرات نظام (Exploits)</div>
+  </div>
+</div>
+
+<!-- Dynamic Info Widget -->
+<div id="info-widget">
+  <div class="widget-header">
+    <h2><span class="flag" id="w-flag">🇸🇦</span> <span id="w-name">السعودية</span></h2>
+    <button class="close-btn" id="w-close">✕</button>
+  </div>
+  <div class="widget-rank">
+    <span>الترتيب العالمي للاستهداف:</span>
+    <span class="rank-num">#<span id="w-rank">12</span></span>
+  </div>
+  <div class="stat-list">
+    <div class="stat-row ddos">
+      <span class="stat-label"><div class="stat-indicator"></div> DDoS</span>
+      <span class="stat-value" id="w-ddos">0</span>
+    </div>
+    <div class="stat-row malware">
+      <span class="stat-label"><div class="stat-indicator"></div> Malware</span>
+      <span class="stat-value" id="w-malware">0</span>
+    </div>
+    <div class="stat-row phish">
+      <span class="stat-label"><div class="stat-indicator"></div> Phishing</span>
+      <span class="stat-value" id="w-phish">0</span>
+    </div>
+    <div class="stat-row ransom">
+      <span class="stat-label"><div class="stat-indicator"></div> Ransomware</span>
+      <span class="stat-value" id="w-ransom">0</span>
+    </div>
+    <div class="stat-row exploit">
+      <span class="stat-label"><div class="stat-indicator"></div> Exploits</span>
+      <span class="stat-value" id="w-exploit">0</span>
+    </div>
+  </div>
+  <div class="widget-footer">
+    <div class="last-activity">آخر هجوم مسجل: <span id="w-time">00:00:00</span></div>
+  </div>
+</div>
+
+<!-- Bottom Stats Bar -->
+<div id="bottom-bar">
+  <div class="bottom-stats">
+    <div class="bottom-stat"><div class="val" id="g-ddos">0</div><div class="label-tag" style="background: var(--attack-ddos)">DDoS</div></div>
+    <div class="bottom-stat"><div class="val" id="g-malware">0</div><div class="label-tag" style="background: var(--attack-malware)">Malware</div></div>
+    <div class="bottom-stat"><div class="val" id="g-phish">0</div><div class="label-tag" style="background: var(--attack-phishing)">Phishing</div></div>
+    <div class="bottom-stat"><div class="val" id="g-ransom">0</div><div class="label-tag" style="background: var(--attack-ransom)">Ransomware</div></div>
+    <div class="bottom-stat"><div class="val" id="g-exploit">0</div><div class="label-tag" style="background: var(--attack-exploit)">Exploits</div></div>
+    <div class="bottom-stat" style="border-right: 1px solid rgba(255,255,255,0.1); padding-right: 20px;"><div class="val" id="g-total" style="color: var(--primary)">0</div><div class="label-tag" style="background: rgba(0,255,200,0.2); color: var(--primary)">إجمالي الهجمات</div></div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module" src="./js/globe-engine.js"></script>
+</body>
+</html>

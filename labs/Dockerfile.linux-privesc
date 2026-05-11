@@ -1,0 +1,65 @@
+# ═══════════════════════════════════════════════
+# 🐧 CyberShield Lab — Linux Privilege Escalation
+# Vulnerable Linux server for privesc practice
+# ═══════════════════════════════════════════════
+FROM ubuntu:22.04
+
+LABEL maintainer="CyberShield Academy"
+LABEL lab.name="linux-privesc"
+LABEL lab.difficulty="advanced"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install services
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    sudo \
+    vim \
+    cron \
+    python3 \
+    nmap \
+    gcc \
+    make \
+    curl \
+    wget \
+    && apt-get clean
+
+# Create users with weak configs
+RUN useradd -m -s /bin/bash hacker && \
+    echo "hacker:hacker123" | chpasswd && \
+    useradd -m -s /bin/bash admin && \
+    echo "admin:SuperSecret!" | chpasswd && \
+    usermod -aG sudo admin
+
+# Plant flags
+RUN echo "FLAG{user_shell_obtained}" > /home/hacker/user.txt && \
+    chmod 644 /home/hacker/user.txt && \
+    echo "FLAG{root_flag_captured}" > /root/root.txt && \
+    chmod 600 /root/root.txt
+
+# ─── Vulnerability 1: SUID binary ───
+RUN cp /bin/find /usr/local/bin/find-vuln && \
+    chmod u+s /usr/local/bin/find-vuln
+
+# ─── Vulnerability 2: Writable cron job ───
+RUN echo "* * * * * root /opt/cleanup.sh" >> /etc/crontab && \
+    echo '#!/bin/bash\necho "cleanup running"' > /opt/cleanup.sh && \
+    chmod 777 /opt/cleanup.sh
+
+# ─── Vulnerability 3: Writable /etc/passwd ───
+RUN chmod 666 /etc/passwd
+
+# ─── Vulnerability 4: Sudo misconfiguration ───
+RUN echo "hacker ALL=(ALL) NOPASSWD: /usr/bin/vim" >> /etc/sudoers
+
+# SSH config
+RUN mkdir /var/run/sshd && \
+    sed -i 's/#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && \
+    sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+
+HEALTHCHECK --interval=30s --timeout=5s \
+    CMD service ssh status || exit 1
+
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]

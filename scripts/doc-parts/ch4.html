@@ -1,0 +1,165 @@
+<div class="chapter page-break">
+  <h2 class="chapter-title">الفصل الرابع: تحليل وتصميم النظام</h2>
+
+  <h3 class="section-title">4.1 المتطلبات الوظيفية (Functional Requirements)</h3>
+  <table>
+    <tr><th>الرقم</th><th>المتطلب</th><th>الوصف</th><th>الأولوية</th></tr>
+    <tr><td>FR-01</td><td>تسجيل المستخدم</td><td>تسجيل حساب جديد بالاسم والبريد وكلمة المرور مع تشفير bcrypt</td><td class="risk-high">عالية</td></tr>
+    <tr><td>FR-02</td><td>تسجيل الدخول</td><td>مصادقة عبر JWT Sessions مع دعم المصادقة الثنائية (2FA/TOTP)</td><td class="risk-high">عالية</td></tr>
+    <tr><td>FR-03</td><td>عرض الدورات</td><td>تصفح قائمة الدورات مع فلترة حسب المستوى والفئة</td><td class="risk-high">عالية</td></tr>
+    <tr><td>FR-04</td><td>مشاهدة الدروس</td><td>عرض فيديو الدرس مع تتبع التقدم تلقائياً</td><td class="risk-high">عالية</td></tr>
+    <tr><td>FR-05</td><td>المختبرات التفاعلية</td><td>بيئات CTF مع إدخال Flags وتحقق Regex</td><td class="risk-high">عالية</td></tr>
+    <tr><td>FR-06</td><td>الاختبارات</td><td>اختبارات MCQ مع بنك أسئلة وتصحيح تلقائي</td><td class="risk-med">متوسطة</td></tr>
+    <tr><td>FR-07</td><td>الشهادات</td><td>إصدار شهادة رقمية تلقائياً عند إتمام الدورة + QR</td><td class="risk-med">متوسطة</td></tr>
+    <tr><td>FR-08</td><td>لوحة المدرب</td><td>إدارة دورات، رفع محتوى، عرض إحصائيات الطلاب</td><td class="risk-med">متوسطة</td></tr>
+    <tr><td>FR-09</td><td>لوحة Admin</td><td>إدارة مستخدمين، مراجعة محتوى، إدارة مستندات</td><td class="risk-high">عالية</td></tr>
+    <tr><td>FR-10</td><td>نظام DMS</td><td>تقديم ومراجعة واعتماد المستندات الإدارية</td><td class="risk-low">منخفضة</td></tr>
+    <tr><td>FR-11</td><td>نظام الإشعارات</td><td>إشعارات فورية عند التقدم أو الأحداث المهمة</td><td class="risk-low">منخفضة</td></tr>
+    <tr><td>FR-12</td><td>قاموس المصطلحات</td><td>معجم ثنائي اللغة لمصطلحات الأمن السيبراني</td><td class="risk-low">منخفضة</td></tr>
+  </table>
+
+  <h3 class="section-title">4.2 المتطلبات غير الوظيفية (Non-Functional Requirements)</h3>
+  <table>
+    <tr><th>الرقم</th><th>المتطلب</th><th>المعيار</th></tr>
+    <tr><td>NFR-01</td><td>الأداء</td><td>زمن استجابة أقل من 500ms لـ 95% من الطلبات</td></tr>
+    <tr><td>NFR-02</td><td>الأمان</td><td>OWASP Top 10 compliance، تشفير بيانات حساسة</td></tr>
+    <tr><td>NFR-03</td><td>قابلية الاستخدام</td><td>WCAG 2.1 Level AA، دعم RTL كامل</td></tr>
+    <tr><td>NFR-04</td><td>التوافق</td><td>Chrome, Firefox, Safari, Edge — أحدث إصدارين</td></tr>
+    <tr><td>NFR-05</td><td>قابلية التوسع</td><td>Modular architecture يدعم إضافة مكونات مستقبلية</td></tr>
+    <tr><td>NFR-06</td><td>الاستجابة</td><td>تصميم متجاوب يعمل على Mobile و Desktop</td></tr>
+    <tr><td>NFR-07</td><td>التدقيق</td><td>Audit Log لجميع العمليات الحساسة</td></tr>
+  </table>
+
+  <h3 class="section-title">4.3 مخططات النظام</h3>
+  <h4 class="sub-title">4.3.1 مخطط تدفق البيانات — المستوى الصفري (DFD Level 0)</h4>
+  <div class="diagram-box">
+    <pre>
+    ┌──────────┐                              ┌──────────────────┐
+    │  طالب    │ ─── تسجيل / تصفح / حل ───▶  │                  │
+    └──────────┘                              │   CyberShield    │
+    ┌──────────┐                              │     Academy      │ ───▶ [قاعدة البيانات]
+    │  مدرب   │ ─── رفع محتوى / تقييم ───▶  │     System       │
+    └──────────┘                              │                  │
+    ┌──────────┐                              │                  │
+    │  مدير   │ ─── إدارة / اعتماد ────▶    └──────────────────┘
+    └──────────┘
+    </pre>
+  </div>
+
+  <h4 class="sub-title">4.3.2 مخطط تدفق البيانات — المستوى الأول (DFD Level 1)</h4>
+  <div class="diagram-box">
+    <pre>
+                  ┌─────────────────┐
+    User ────▶   │ 1.0 Authentication│ ───▶ [Sessions DB]
+                  └────────┬────────┘
+                           │
+              ┌────────────┼────────────┐
+              ▼            ▼            ▼
+    ┌─────────────┐ ┌──────────┐ ┌──────────────┐
+    │2.0 Courses  │ │3.0 Labs  │ │4.0 Exams     │
+    │ Management  │ │ Engine   │ │ & Certs      │
+    └──────┬──────┘ └────┬─────┘ └──────┬───────┘
+           │             │              │
+           ▼             ▼              ▼
+      [Courses DB]  [Labs DB]    [Results DB]
+              │             │              │
+              └─────────────┼──────────────┘
+                            ▼
+                   ┌────────────────┐
+                   │5.0 Admin Panel │ ◀── Admin
+                   │   + DMS        │
+                   └────────────────┘
+    </pre>
+  </div>
+
+  <h4 class="sub-title">4.3.3 مخطط الكيانات والعلاقات (ERD)</h4>
+  <div class="diagram-box">
+    <pre>
+    ┌──────────┐     1:N     ┌──────────────┐     N:1     ┌─────────┐
+    │   User   │────────────▶│ UserProgress │◀────────────│ Course  │
+    │──────────│             │──────────────│             │─────────│
+    │ id (PK)  │             │ userId (FK)  │             │ id (PK) │
+    │ name     │             │ courseId(FK)  │             │ titleAr │
+    │ email    │             │ progress     │             │ titleEn │
+    │ password │             │ completed    │             │ level   │
+    │ role     │             └──────────────┘             │ lessons │
+    │ 2FA      │                                         │teacherId│
+    └──────┬───┘                                         └────┬────┘
+           │ 1:N                                              │ 1:N
+           ▼                                                  ▼
+    ┌──────────────┐                                   ┌──────────┐
+    │  LabSession  │                                   │  Lesson  │
+    │──────────────│                                   │──────────│
+    │ userId (FK)  │                                   │courseId  │
+    │ labId (FK)   │                                   │ titleAr  │
+    │ status       │                                   │ videoUrl │
+    │ expiresAt    │                                   │ order    │
+    └──────────────┘                                   └──────────┘
+           │ N:1
+           ▼
+    ┌──────────┐     1:N     ┌──────────────┐
+    │   Lab    │────────────▶│LabChallenge  │
+    │──────────│             │──────────────│
+    │ id (PK)  │             │ labId (FK)   │
+    │ title    │             │ title        │
+    │ category │             │ flag         │
+    │ xp       │             │ points       │
+    └──────────┘             └──────────────┘
+
+    ┌──────────────────┐     1:N     ┌──────────┐
+    │DocumentTemplate  │────────────▶│ Document │
+    │──────────────────│             │──────────│
+    │ code (UNIQUE)    │             │serialNum │
+    │ titleAr          │             │ status   │
+    │ schema (JSON)    │             │ data     │
+    └──────────────────┘             │signature │
+                                     └──────────┘
+    </pre>
+  </div>
+
+  <h4 class="sub-title">4.3.4 مخطط حالة الاستخدام (Use Case Diagram)</h4>
+  <div class="diagram-box">
+    <pre>
+                        CyberShield Academy
+    ┌──────────────────────────────────────────────────┐
+    │                                                  │
+    │   (تسجيل حساب)    (تصفح الدورات)    (حل مختبر) │
+    │        ▲                 ▲               ▲       │
+    │        │                 │               │       │
+    │   ┌────┴────┐       ┌───┴───┐      ┌────┴───┐   │
+    │   │ طالب    │       │ طالب  │      │ طالب   │   │
+    │   └─────────┘       └───────┘      └────────┘   │
+    │                                                  │
+    │   (رفع دورة)    (تقييم طلاب)    (عرض تقارير)   │
+    │        ▲               ▲              ▲          │
+    │   ┌────┴────┐     ┌────┴───┐    ┌─────┴────┐    │
+    │   │ مدرب   │     │ مدرب  │    │ مدرب    │    │
+    │   └─────────┘     └────────┘    └──────────┘    │
+    │                                                  │
+    │   (إدارة مستخدمين) (اعتماد دورات) (مراجعة DMS) │
+    │        ▲                ▲              ▲         │
+    │   ┌────┴────┐     ┌────┴───┐    ┌─────┴────┐    │
+    │   │ مدير   │     │ مدير  │    │ مدير    │    │
+    │   └─────────┘     └────────┘    └──────────┘    │
+    └──────────────────────────────────────────────────┘
+    </pre>
+  </div>
+
+  <h3 class="section-title">4.4 تصميم قاعدة البيانات</h3>
+  <p>تحتوي قاعدة البيانات على <strong>20 جدولاً</strong> رئيسياً مبنية باستخدام Prisma ORM:</p>
+  <table>
+    <tr><th>الجدول</th><th>الغرض</th><th>أبرز الحقول</th></tr>
+    <tr><td>User</td><td>بيانات المستخدمين</td><td>id, name, email, password, role, 2FA, points</td></tr>
+    <tr><td>Session</td><td>جلسات المصادقة</td><td>token, userId, expiresAt</td></tr>
+    <tr><td>Course</td><td>الدورات التعليمية</td><td>titleAr/En, level, teacherId, price</td></tr>
+    <tr><td>Lesson</td><td>الدروس</td><td>titleAr/En, videoUrl, order, courseId</td></tr>
+    <tr><td>UserProgress</td><td>تتبع تقدم الطالب</td><td>userId, courseId, progress%, completed</td></tr>
+    <tr><td>Lab</td><td>المختبرات</td><td>title, category, difficulty, xp</td></tr>
+    <tr><td>LabChallenge</td><td>تحديات المختبر</td><td>labId, flag, validationRegex, points</td></tr>
+    <tr><td>LabSession</td><td>جلسات المختبر</td><td>userId, labId, status, expiresAt</td></tr>
+    <tr><td>Quiz / Question</td><td>الاختبارات</td><td>courseId, options(JSON), correctAnswer</td></tr>
+    <tr><td>AuditLog</td><td>سجل التدقيق الأمني</td><td>action, userId, ipAddress, severity</td></tr>
+    <tr><td>Document</td><td>نظام DMS</td><td>serialNumber, templateId, status, signature</td></tr>
+    <tr><td>Notification</td><td>الإشعارات</td><td>userId, type, title, message, read</td></tr>
+  </table>
+</div>

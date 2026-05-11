@@ -1,0 +1,67 @@
+# ═══════════════════════════════════════════════
+# 🧪 CyberShield Lab Orchestration
+# Spin up individual lab environments per user
+# ═══════════════════════════════════════════════
+version: '3.9'
+
+networks:
+  lab-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/16
+
+services:
+  # ─── Web Vulnerability Lab ───
+  lab-web-vuln:
+    build:
+      context: .
+      dockerfile: Dockerfile.web-vuln
+    networks:
+      lab-network:
+        ipv4_address: 10.10.1.10
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    restart: unless-stopped
+    labels:
+      - "cybershield.lab=web-vuln"
+      - "cybershield.difficulty=intermediate"
+
+  # ─── Linux Privilege Escalation Lab ───
+  lab-linux-privesc:
+    build:
+      context: .
+      dockerfile: Dockerfile.linux-privesc
+    networks:
+      lab-network:
+        ipv4_address: 10.10.2.10
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+    labels:
+      - "cybershield.lab=linux-privesc"
+      - "cybershield.difficulty=advanced"
+
+  # ─── Network Scanning Lab ───
+  lab-network-scan:
+    build:
+      context: .
+      dockerfile: Dockerfile.network-scan
+    networks:
+      lab-network:
+        ipv4_address: 10.10.3.10
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+    labels:
+      - "cybershield.lab=network-scan"
+      - "cybershield.difficulty=beginner"

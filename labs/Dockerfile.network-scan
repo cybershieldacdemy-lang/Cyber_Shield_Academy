@@ -1,0 +1,52 @@
+# ═══════════════════════════════════════════════
+# 🌐 CyberShield Lab — Network Scanning & Enumeration
+# Multiple services with various vulnerabilities
+# ═══════════════════════════════════════════════
+FROM ubuntu:22.04
+
+LABEL maintainer="CyberShield Academy"
+LABEL lab.name="network-scan"
+LABEL lab.difficulty="beginner"
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    vsftpd \
+    apache2 \
+    samba \
+    mysql-server \
+    python3 \
+    netcat-openbsd \
+    && apt-get clean
+
+# ─── FTP: Anonymous access ───
+RUN mkdir -p /var/ftp/pub && \
+    echo "FLAG{ftp_anonymous}" > /var/ftp/pub/secret.txt && \
+    echo "anonymous_enable=YES" >> /etc/vsftpd.conf && \
+    echo "no_anon_password=YES" >> /etc/vsftpd.conf && \
+    echo "anon_root=/var/ftp" >> /etc/vsftpd.conf
+
+# ─── HTTP: Info disclosure ───
+RUN echo '<!DOCTYPE html><html><body><h1>Server Info</h1><!-- FLAG{open_ports_identified} --><p>Internal Server v3.2.1</p></body></html>' > /var/www/html/index.html
+
+# ─── SMB: Open share ───
+RUN mkdir -p /srv/samba/share && \
+    echo "FLAG{smb_share_found}" > /srv/samba/share/credentials.txt && \
+    printf "[share]\n  path = /srv/samba/share\n  browseable = yes\n  read only = yes\n  guest ok = yes\n" >> /etc/samba/smb.conf
+
+# ─── SSH with weak creds ───
+RUN useradd -m -s /bin/bash testuser && \
+    echo "testuser:password" | chpasswd && \
+    mkdir /var/run/sshd
+
+# Startup script
+RUN echo '#!/bin/bash\nservice ssh start\nservice vsftpd start\nservice apache2 start\nservice smbd start\ntail -f /dev/null' > /start.sh && \
+    chmod +x /start.sh
+
+HEALTHCHECK --interval=30s --timeout=5s \
+    CMD curl -f http://localhost/ || exit 1
+
+EXPOSE 21 22 80 139 445 3306
+
+CMD ["/start.sh"]

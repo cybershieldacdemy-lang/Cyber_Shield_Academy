@@ -1,0 +1,38 @@
+# ═══════════════════════════════════════════════
+# 🧪 CyberShield Lab — Web Vulnerability Training
+# Deliberately vulnerable web application
+# ═══════════════════════════════════════════════
+FROM php:8.2-apache
+
+LABEL maintainer="CyberShield Academy"
+LABEL lab.name="web-vuln"
+LABEL lab.difficulty="intermediate"
+
+# Install extensions
+RUN docker-php-ext-install pdo pdo_mysql mysqli
+
+# Configure Apache
+RUN a]mos rewrite
+COPY ./lab-web-vuln/apache.conf /etc/apache2/sites-enabled/000-default.conf
+
+# Create vulnerable web app
+COPY ./lab-web-vuln/src/ /var/www/html/
+
+# Create SQLite database with test data
+RUN mkdir -p /var/www/data && \
+    sqlite3 /var/www/data/app.db "CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT);" && \
+    sqlite3 /var/www/data/app.db "INSERT INTO users VALUES (1, 'admin', 'admin123', 'admin');" && \
+    sqlite3 /var/www/data/app.db "INSERT INTO users VALUES (2, 'user', 'password', 'user');" && \
+    sqlite3 /var/www/data/app.db "CREATE TABLE flags (id INTEGER PRIMARY KEY, name TEXT, value TEXT);" && \
+    sqlite3 /var/www/data/app.db "INSERT INTO flags VALUES (1, 'sqli', 'FLAG{sql_injection_found}');" && \
+    sqlite3 /var/www/data/app.db "INSERT INTO flags VALUES (2, 'xss', 'FLAG{xss_reflected}');" && \
+    sqlite3 /var/www/data/app.db "INSERT INTO flags VALUES (3, 'admin', 'FLAG{admin_panel_access}');"
+
+RUN apt-get update && apt-get install -y sqlite3 && apt-get clean
+RUN chown -R www-data:www-data /var/www/
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+    CMD curl -f http://localhost/ || exit 1
+
+EXPOSE 80

@@ -1,0 +1,403 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String         @id @default(cuid())
+  name             String
+  email            String         @unique
+  password         String
+  role             String         @default("user") // user, admin, teacher
+  twoFactorEnabled Boolean        @default(false)
+  twoFactorSecret  String?
+  avatar           String?
+  points           Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  sessions         Session[]
+  contacts         Contact[]
+  progress         UserProgress[]
+  changes          ChangeLog[]    @relation("AdminChanges")
+  auditLogs        AuditLog[]
+  taughtCourses    Course[]       @relation("TeacherCourses")
+  badges              UserBadge[]
+  notifications       Notification[]
+  labSessions         LabSession[]
+  labProgress         UserLabProgress[]
+  submittedDocuments  Document[]      @relation("SubmittedDocuments")
+  reviewedDocuments   Document[]      @relation("ReviewedDocuments")
+  documentLogs        DocumentLog[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Term {
+  id           Int      @id @default(autoincrement())
+  termEn       String
+  termAr       String
+  definitionAr String
+  definitionEn String
+  example      String
+  level        String // مبتدئ, متوسط, متقدم
+  categoryId   Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Course {
+  id          String         @id @default(cuid())
+  titleAr     String
+  titleEn     String
+  descAr      String
+  descEn      String
+  level       String
+  lessons     Int
+  duration    String
+  icon        String
+  image       String?
+  price       Float          @default(0)
+  published   Boolean        @default(true)
+  teacherId   String?
+  teacher     User?          @relation("TeacherCourses", fields: [teacherId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  progress    UserProgress[]
+  lessonItems Lesson[]
+  quizzes     Quiz[]
+}
+
+model UserProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress  Int      @default(0) // percentage 0-100
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+}
+
+model BlogPost {
+  id        String   @id @default(cuid())
+  titleAr   String
+  titleEn   String
+  contentAr String
+  contentEn String
+  excerpt   String
+  category  String
+  author    String
+  image     String?
+  published Boolean  @default(true)
+  readTime  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model News {
+  id              String   @id @default(cuid())
+  titleAr         String
+  titleEn         String
+  descriptionAr   String
+  descriptionEn   String
+  severity        String // critical, high, medium, low
+  cve             String?
+  affectedSystems String
+  source          String?
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  ipAddress  String?  @default("0.0.0.0")
+  userAgent  String?
+  resource   String?
+  resourceId String?
+  details    String?
+  severity   String   @default("low") // low, medium, high, critical
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model Asset {
+  id             String   @id @default(cuid())
+  name           String
+  assetType      String // Hardware, Software, Data, Service
+  classification String // Public, Internal, Confidential, Restricted
+  owner          String // Person or Dept responsible
+  location       String? // Physical or Digital location
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("assets")
+}
+
+model ChangeLog {
+  id        String   @id @default(cuid())
+  action    String // UPDATE, DELETE, CONFIG_CHANGE
+  entity    String // User, Course, Policy, System
+  entityId  String?
+  oldValue  String? // JSON string
+  newValue  String? // JSON string
+  adminId   String
+  admin     User     @relation("AdminChanges", fields: [adminId], references: [id])
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([entity])
+  @@index([status])
+  @@map("change_logs")
+}
+
+model Vulnerability {
+  id             String   @id @default(cuid())
+  title          String
+  description    String
+  severity       String // CRITICAL, HIGH, MEDIUM, LOW
+  status         String   @default("OPEN") // OPEN, IN_PROGRESS, RESOLVED, FALSE_POSITIVE
+  cve            String?
+  affectedAssets String?
+  remediation    String?
+  reportedBy     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("vulnerabilities")
+}
+
+model Lesson {
+  id          String   @id @default(cuid())
+  titleAr     String
+  titleEn     String
+  description String?
+  videoUrl    String?
+  duration    String?
+  order       Int      @default(0)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quiz {
+  id        String     @id @default(cuid())
+  titleAr   String
+  titleEn   String
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  questions Question[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  quizId        String
+  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  questionText  String
+  options       String // JSON string array of options
+  correctAnswer String // The correct option
+  points        Int      @default(10)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  nameAr      String
+  nameEn      String
+  description String
+  icon        String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  awardedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   @default("system") // achievement, course, system, security, social
+  title     String
+  message   String
+  icon      String   @default("🔔")
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([read])
+  @@map("notifications")
+}
+
+// --- Cyber Labs Models ---
+
+model Lab {
+  id          String   @id @default(cuid())
+  title       String   @map("title_ar")
+  titleEn     String   @map("title_en") @default("")
+  description String?  @map("description_ar")
+  descriptionEn String? @map("description_en")
+  difficulty  String   @default("beginner")
+  category    String   @default("network")
+  xp          Int      @default(100)
+  duration    String   @default("30m")
+  skills      String?  @map("tools")
+  scenario    String?  @map("scenario_ar")
+  isPublished Int      @map("is_online") @default(1)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  challenges  LabChallenge[]
+  sessions    LabSession[]
+  progress    UserLabProgress[]
+
+  @@map("labs")
+}
+
+model LabChallenge {
+  id          String   @id @default(cuid())
+  labId       String   @map("lab_id")
+  lab         Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  title       String   @map("title_ar")
+  titleEn     String   @map("title_en") @default("")
+  description String   @map("task_description")
+  validationRegex String? @map("validation_regex")
+  hint        String?
+  flag        String?  @map("solution")
+  order       Int      @map("step_order") @default(1)
+  points      Int      @default(10)
+
+  @@map("lab_scenarios")
+}
+
+model LabSession {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  labId       String   @map("lab_id")
+  lab         Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  status      String   @default("running") // running, stopped, expired
+  containerId String?  @map("container_id")// ID of the docker container (if any)
+  ipAddress   String?  @map("ip_address")// IP assigned to the user
+  expiresAt   DateTime @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("lab_sessions")
+}
+
+model UserLabProgress {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  labId       String   @map("lab_id")
+  lab         Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  challenges  String   // JSON array of completed challenge IDs
+  completed   Boolean  @default(false)
+  score       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, labId])
+  @@map("user_lab_progress")
+}
+
+// --- Document Management System (DMS) Models ---
+
+model DocumentTemplate {
+  id        String   @id @default(cuid())
+  code      String   @unique // e.g., 'INS-01', 'CRS-01', 'LAB-01'
+  titleAr   String
+  titleEn   String
+  category  String   // Users, Instructors, Courses, Labs, Exams, Certificates, Technical
+  schema    String   // JSON array defining the form fields
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  documents Document[]
+
+  @@map("document_templates")
+}
+
+model Document {
+  id           String           @id @default(cuid())
+  serialNumber String           @unique // e.g., 'DOC-2026-INS-001'
+  templateId   String
+  template     DocumentTemplate @relation(fields: [templateId], references: [id])
+  submitterId  String
+  submitter    User             @relation("SubmittedDocuments", fields: [submitterId], references: [id])
+  reviewerId   String?
+  reviewer     User?            @relation("ReviewedDocuments", fields: [reviewerId], references: [id])
+  status       String           @default("PENDING") // PENDING, APPROVED, REJECTED, ARCHIVED
+  data         String           // JSON blob of filled form data
+  signature    String?          // SHA-256 hash of (submitterId + templateCode + data + timestamp)
+  reviewNotes  String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  logs         DocumentLog[]
+
+  @@index([status])
+  @@index([submitterId])
+  @@map("documents")
+}
+
+model DocumentLog {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  action     String   // CREATED, SUBMITTED, REVIEWED, APPROVED, REJECTED, ARCHIVED
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  notes      String?
+  createdAt  DateTime @default(now())
+
+  @@map("document_logs")
+}

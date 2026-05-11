@@ -1,0 +1,143 @@
+{
+  "totalBefore": 500,
+  "totalAfter": 466,
+  "duplicatesRemoved": 34,
+  "removedList": [
+    {
+      "removed": "IoT Security",
+      "kept": "IoT Security"
+    },
+    {
+      "removed": "ISO 27001",
+      "kept": "ISO 27001"
+    },
+    {
+      "removed": "Jailbreak",
+      "kept": "Jailbreak"
+    },
+    {
+      "removed": "Kerberos",
+      "kept": "Kerberos"
+    },
+    {
+      "removed": "Key Logger",
+      "kept": "Key Logger"
+    },
+    {
+      "removed": "Lateral Movement",
+      "kept": "Lateral Movement"
+    },
+    {
+      "removed": "LDAP",
+      "kept": "LDAP"
+    },
+    {
+      "removed": "Log Analysis",
+      "kept": "Log Analysis"
+    },
+    {
+      "removed": "MAC Address",
+      "kept": "MAC Address"
+    },
+    {
+      "removed": "Incident Response",
+      "kept": "Incident Response"
+    },
+    {
+      "removed": "IP Address",
+      "kept": "IP Address"
+    },
+    {
+      "removed": "GDPR",
+      "kept": "GDPR"
+    },
+    {
+      "removed": "API Security",
+      "kept": "API Security"
+    },
+    {
+      "removed": "Endpoint Security",
+      "kept": "Endpoint Security"
+    },
+    {
+      "removed": "Antivirus",
+      "kept": "Antivirus"
+    },
+    {
+      "removed": "Botnet",
+      "kept": "Botnet"
+    },
+    {
+      "removed": "Adware",
+      "kept": "Adware"
+    },
+    {
+      "removed": "Cloud Security",
+      "kept": "Cloud Security"
+    },
+    {
+      "removed": "Bug Bounty",
+      "kept": "Bug Bounty"
+    },
+    {
+      "removed": "Blue Team",
+      "kept": "Blue Team"
+    },
+    {
+      "removed": "Compliance",
+      "kept": "Compliance"
+    },
+    {
+      "removed": "Dark Web",
+      "kept": "Dark Web"
+    },
+    {
+      "removed": "Data Breach",
+      "kept": "Data Breach"
+    },
+    {
+      "removed": "CVE",
+      "kept": "CVE"
+    },
+    {
+      "removed": "Credential Stuffing",
+      "kept": "Credential Stuffing"
+    },
+    {
+      "removed": "Honeypot",
+      "kept": "Honeypot"
+    },
+    {
+      "removed": "Air Gap",
+      "kept": "Air Gap"
+    },
+    {
+      "removed": "Buffer Overflow",
+      "kept": "Buffer Overflow"
+    },
+    {
+      "removed": "Fuzzing",
+      "kept": "Fuzzing"
+    },
+    {
+      "removed": "Blockchain Security",
+      "kept": "Blockchain Security"
+    },
+    {
+      "removed": "DevSecOps",
+      "kept": "DevSecOps"
+    },
+    {
+      "removed": "CASB",
+      "kept": "CASB"
+    },
+    {
+      "removed": "Microsegmentation",
+      "kept": "Microsegmentation"
+    },
+    {
+      "removed": "Cyber Kill Chain",
+      "kept": "Cyber Kill Chain"
+    }
+  ]
+}

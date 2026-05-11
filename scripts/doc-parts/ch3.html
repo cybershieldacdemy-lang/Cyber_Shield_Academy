@@ -1,0 +1,81 @@
+<div class="chapter page-break">
+  <h2 class="chapter-title">الفصل الثالث: الحلول البديلة والحل المقترح</h2>
+
+  <h3 class="section-title">3.1 الحلول البديلة</h3>
+  <table>
+    <tr><th>الحل</th><th>الوصف</th><th>المميزات</th><th>العيوب</th></tr>
+    <tr><td>استخدام منصة Moodle</td><td>نظام LMS مفتوح المصدر جاهز</td><td>مجاني، مجتمع كبير</td><td>لا يدعم المختبرات، واجهة قديمة</td></tr>
+    <tr><td>حل SaaS جاهز (Teachable)</td><td>منصة مدفوعة لبيع الدورات</td><td>سريع الإطلاق، بدون برمجة</td><td>لا مختبرات، تبعية كاملة، تكلفة مستمرة</td></tr>
+    <tr><td>بناء منصة من الصفر</td><td>تطوير كامل بتقنيات حديثة</td><td>تحكم كامل، مرونة، تخصيص</td><td>وقت تطوير أطول</td></tr>
+  </table>
+
+  <h3 class="section-title">3.2 الحل المقترح</h3>
+  <p>بعد تقييم الحلول البديلة، تم اختيار <strong>بناء منصة متكاملة من الصفر</strong> وذلك للأسباب التالية:</p>
+  <ul>
+    <li>المرونة الكاملة في تصميم المختبرات الافتراضية وتحديات CTF.</li>
+    <li>التحكم الكامل في البنية الأمنية للمنصة (Security by Design).</li>
+    <li>إمكانية التوسع المستقبلي (بيئات Docker، AI Tutor).</li>
+    <li>تخصيص تجربة المستخدم العربي بشكل كامل (RTL, Arabic UI).</li>
+  </ul>
+
+  <div class="highlight">
+    <strong>الحل النهائي:</strong> منصة CyberShield Academy — منصة تعليم إلكتروني ثنائية اللغة (عربي/إنجليزي) متخصصة بالأمن السيبراني، تدمج: دورات فيديو + مختبرات تفاعلية + اختبارات + شهادات رقمية + نظام Gamification + لوحة مراقبة أمنية.
+  </div>
+
+  <h4 class="sub-title">المكونات الرئيسية للحل:</h4>
+  <table>
+    <tr><th>المكون</th><th>الوصف</th><th>التقنية</th></tr>
+    <tr><td>بوابة التعلم</td><td>دورات فيديو ودروس تفاعلية</td><td>Next.js + React</td></tr>
+    <tr><td>المختبرات</td><td>بيئات CTF مع Flags وتحقق تلقائي</td><td>Web-based + Validation Engine</td></tr>
+    <tr><td>الاختبارات</td><td>بنك أسئلة متعدد المستويات</td><td>Dynamic Quiz System</td></tr>
+    <tr><td>الشهادات</td><td>إصدار تلقائي + تحقق عبر QR</td><td>Crypto + QR Generator</td></tr>
+    <tr><td>الإدارة</td><td>لوحة تحكم شاملة + DMS</td><td>Admin Dashboard</td></tr>
+    <tr><td>الأمان</td><td>مراقبة حوادث + Audit Logs</td><td>Security Module</td></tr>
+  </table>
+
+  <h3 class="section-title">3.3 دراسة الجدوى</h3>
+  <h4 class="sub-title">3.3.1 الجدوى الاقتصادية</h4>
+  <table>
+    <tr><th>البند</th><th>التكلفة (ريال)</th><th>ملاحظات</th></tr>
+    <tr><td>استضافة سحابية (سنوياً)</td><td>3,600</td><td>VPS + CDN</td></tr>
+    <tr><td>نطاق (Domain) سنوياً</td><td>120</td><td>.com + .sa</td></tr>
+    <tr><td>أدوات تطوير</td><td>0</td><td>مفتوحة المصدر</td></tr>
+    <tr><td>تكلفة تطوير (مبرمج)</td><td>0</td><td>مشروع تخرج</td></tr>
+    <tr><td>شهادات SSL</td><td>0</td><td>Let's Encrypt</td></tr>
+    <tr><td><strong>الإجمالي السنوي</strong></td><td><strong>3,720</strong></td><td></td></tr>
+  </table>
+  <p><strong>العائد المتوقع:</strong> في حال تحويل المشروع لمنتج تجاري، يمكن تحقيق إيرادات عبر: اشتراكات شهرية (49-99 ريال)، دورات مدفوعة، شراكات مع جهات تدريب.</p>
+
+  <h4 class="sub-title">3.3.2 الجدوى التقنية</h4>
+  <p>جميع التقنيات المستخدمة مفتوحة المصدر ومدعومة بمجتمعات ضخمة:</p>
+  <table>
+    <tr><th>التقنية</th><th>الإصدار</th><th>الغرض</th></tr>
+    <tr><td>Next.js</td><td>16.1.6</td><td>Framework (Full-Stack)</td></tr>
+    <tr><td>React</td><td>19.x</td><td>واجهة المستخدم</td></tr>
+    <tr><td>TypeScript</td><td>5.x</td><td>Type Safety</td></tr>
+    <tr><td>Prisma ORM</td><td>5.14</td><td>إدارة قاعدة البيانات</td></tr>
+    <tr><td>SQLite</td><td>3.x</td><td>قاعدة البيانات</td></tr>
+    <tr><td>bcrypt</td><td>5.x</td><td>تشفير كلمات المرور</td></tr>
+    <tr><td>Tailwind CSS</td><td>4.x</td><td>التصميم</td></tr>
+  </table>
+
+  <h4 class="sub-title">3.3.3 الجدوى التشغيلية</h4>
+  <p>المنصة مصممة لتعمل بحد أدنى من التدخل البشري:</p>
+  <ul>
+    <li>تسجيل وتفعيل تلقائي للحسابات.</li>
+    <li>إصدار شهادات تلقائي عند إتمام المتطلبات.</li>
+    <li>نظام إدارة مستندات (DMS) يؤتمت سير العمل الإداري.</li>
+    <li>لوحة مراقبة أمنية بتنبيهات فورية.</li>
+  </ul>
+
+  <h3 class="section-title">3.4 إدارة المخاطر</h3>
+  <table>
+    <tr><th>الخطر</th><th>النوع</th><th>الاحتمالية</th><th>التأثير</th><th>خطة التخفيف</th></tr>
+    <tr><td>اختراق قاعدة البيانات</td><td>أمني</td><td class="risk-high">عالي</td><td class="risk-high">حرج</td><td>تشفير bcrypt، Prepared Statements، WAF</td></tr>
+    <tr><td>هجمات DDoS</td><td>أمني</td><td class="risk-med">متوسط</td><td class="risk-high">عالي</td><td>Rate Limiting، Cloudflare</td></tr>
+    <tr><td>تسريب بيانات الطلاب</td><td>أمني</td><td class="risk-med">متوسط</td><td class="risk-high">حرج</td><td>تشفير AES-256، Access Control</td></tr>
+    <tr><td>تعطل السيرفر</td><td>تقني</td><td class="risk-low">منخفض</td><td class="risk-med">متوسط</td><td>نسخ احتياطية يومية، Failover</td></tr>
+    <tr><td>عدم تفاعل المستخدمين</td><td>تشغيلي</td><td class="risk-med">متوسط</td><td class="risk-med">متوسط</td><td>Gamification، محتوى جذاب</td></tr>
+    <tr><td>خلل في المختبرات</td><td>تقني</td><td class="risk-med">متوسط</td><td class="risk-low">منخفض</td><td>Validation testing، Fallback</td></tr>
+  </table>
+</div>
