@@ -42,21 +42,34 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ message: 'رصيد النقاط غير كافٍ لفتح هذا التلميح' }, { status: 403 });
         }
 
-        // Transaction: Unlock hint and deduct points
         db.transaction(() => {
-            db.prepare('INSERT INTO ctf_unlocked_hints (user_id, hint_id) VALUES (?, ?)').run(userId, hintId);
+
+            db.prepare(
+                'INSERT INTO ctf_unlocked_hints (user_id, hint_id) VALUES (?, ?)'
+            ).run(userId, hintId);
+
             if (hint.cost > 0) {
-                db.prepare('UPDATE users SET points = points - ? WHERE id = ?').run(hint.cost, userId);
+                db.prepare(
+                    'UPDATE users SET points = points - ? WHERE id = ?'
+                ).run(hint.cost, userId);
             }
-            
-            // Generate audit log
-            db.prepare('INSERT INTO audit_logs (action, user_id, ip_address, resource, resource_id, details) VALUES (?, ?, ?, ?, ?, ?)').run(
-                'CTF_HINT_UNLOCK', userId, 'API', 'HINT', hintId.toString(), \`Unlocked hint for challenge \${hint.challenge_id} (Cost: \${hint.cost})\`
+
+            db.prepare(
+                'INSERT INTO audit_logs (action, user_id, ip_address, resource, resource_id, details) VALUES (?, ?, ?, ?, ?, ?)'
+            ).run(
+                'CTF_HINT_UNLOCK',
+                userId,
+                'API',
+                'HINT',
+                hintId.toString(),
+                `Unlocked hint for challenge ${hint.challenge_id} (Cost: ${hint.cost})`
             );
+
         })();
 
-        return NextResponse.json({ 
-            message: 'تم فتح التلميح بنجاح', 
+
+        return NextResponse.json({
+            message: 'تم فتح التلميح بنجاح',
             content: hint.content,
             deducted: hint.cost
         });

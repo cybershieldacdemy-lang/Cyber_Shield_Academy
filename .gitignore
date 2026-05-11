@@ -19,7 +19,7 @@ build
 *.gguf
 
 courses
-data
+/data
 backups
 docs
 

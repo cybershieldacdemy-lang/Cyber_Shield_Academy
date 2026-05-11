@@ -8,9 +8,9 @@ const MAX_ATTEMPTS = 5;
 const rateLimit = new Map<string, { count: number; lastReset: number }>();
 
 function getClientIP(request: NextRequest): string {
-    return request.headers.get('x-real-ip') || 
-           request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
-           '127.0.0.1';
+    return request.headers.get('x-real-ip') ||
+        request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+        '127.0.0.1';
 }
 
 function checkRateLimit(ip: string): boolean {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         }
 
         const challenge = db.prepare('SELECT * FROM ctf_challenges WHERE id = ?').get(challengeId) as any;
-        
+
         if (!challenge || challenge.status !== 'active') {
             return NextResponse.json({ message: 'التحدي غير موجود أو غير نشط' }, { status: 404 });
         }
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         // Calculate points based on decay
         const totalSolvesRes = db.prepare('SELECT COUNT(*) as count FROM ctf_solves WHERE challenge_id = ?').get(challengeId) as any;
         const totalSolves = totalSolvesRes ? totalSolvesRes.count : 0;
-        
+
         let earnedPoints = challenge.base_points;
         if (challenge.decay_solves > 0 && totalSolves > 0) {
             const decayFactor = Math.min(totalSolves / challenge.decay_solves, 1);
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
         `).all(userId, challengeId) as any[];
 
         const hintsCost = unlockedHints.reduce((sum, h) => sum + h.cost, 0);
-        
+
         earnedPoints = Math.max(0, earnedPoints - hintsCost);
 
         // Transaction
@@ -117,15 +117,15 @@ export async function POST(request: NextRequest) {
             db.prepare('INSERT INTO ctf_solves (challenge_id, user_id, points_earned) VALUES (?, ?, ?)').run(challengeId, userId, earnedPoints);
             // Update user points
             db.prepare('UPDATE users SET points = points + ? WHERE id = ?').run(earnedPoints, userId);
-            
+
             // Generate audit log
             db.prepare('INSERT INTO audit_logs (action, user_id, ip_address, resource, resource_id, details) VALUES (?, ?, ?, ?, ?, ?)').run(
-                'CTF_SOLVE', userId, ip, 'CHALLENGE', challengeId.toString(), \`Solved with \${earnedPoints} points (Cost: \${hintsCost})\`
+                'CTF_SOLVE', userId, ip, 'CHALLENGE', challengeId.toString(), `Solved with ${earnedPoints} points (Cost: ${hintsCost})`
             );
         })();
 
-        return NextResponse.json({ 
-            message: 'تهانينا! الإجابة صحيحة.', 
+        return NextResponse.json({
+            message: 'تهانينا! الإجابة صحيحة.',
             earnedPoints,
             hintsCost
         });
