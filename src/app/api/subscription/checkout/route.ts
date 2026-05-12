@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
 import { getAuthUser } from '@/lib/api-guard';
 import { createCheckoutSession } from '@/lib/stripe';
 import { logAudit } from '@/lib/data-protection';

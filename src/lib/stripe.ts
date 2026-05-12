@@ -6,9 +6,13 @@ import crypto from 'crypto';
 // 💳 STRIPE SERVICE — خدمة الدفع والاشتراكات
 // ═══════════════════════════════════════════════════════════
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-    apiVersion: '2025-04-30.basil' as any,
-});
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+
+export const stripe = stripeSecretKey
+    ? new Stripe(stripeSecretKey, {
+        apiVersion: '2025-04-30.basil' as any,
+    })
+    : null;
 
 export default stripe;
 
@@ -110,6 +114,7 @@ export async function getOrCreateStripeCustomer(user: { id: string; email: strin
     }
 
     // Create new Stripe customer
+    if (!stripe) throw new Error('Stripe is not initialized. Please check STRIPE_SECRET_KEY.');
     const customer = await stripe.customers.create({
         email: user.email,
         name: user.name,
@@ -132,6 +137,7 @@ export async function createCheckoutSession(user: { id: string; email: string; n
     const customerId = await getOrCreateStripeCustomer(user);
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+    if (!stripe) throw new Error('Stripe is not initialized. Please check STRIPE_SECRET_KEY.');
     const session = await stripe.checkout.sessions.create({
         customer: customerId,
         mode: 'subscription',
@@ -161,6 +167,7 @@ export async function createCheckoutSession(user: { id: string; email: string; n
 export async function createCustomerPortalSession(customerId: string): Promise<string> {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
+    if (!stripe) throw new Error('Stripe is not initialized. Please check STRIPE_SECRET_KEY.');
     const session = await stripe.billingPortal.sessions.create({
         customer: customerId,
         return_url: `${appUrl}/dashboard`,
@@ -174,6 +181,7 @@ export async function createCustomerPortalSession(customerId: string): Promise<s
 // ═══════════════════════════════════════════════════════════
 
 export async function cancelSubscription(stripeSubscriptionId: string): Promise<void> {
+    if (!stripe) throw new Error('Stripe is not initialized. Please check STRIPE_SECRET_KEY.');
     await stripe.subscriptions.update(stripeSubscriptionId, {
         cancel_at_period_end: true,
     });
