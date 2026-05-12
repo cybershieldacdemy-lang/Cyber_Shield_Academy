@@ -1069,13 +1069,20 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+// Build-time protection: Only throw if we are actually trying to use the DB in runtime
+const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+
+if (!process.env.DATABASE_URL && !isBuildTime && process.env.NODE_ENV === 'production') {
+  console.warn("⚠️ DATABASE_URL is missing in production environment!");
+}
+
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   datasources: {
     db: {
       url: process.env.DATABASE_URL || 'file:./prisma/data/cyber.db'
     }
   },
-  log: ['query']
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']
 })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
