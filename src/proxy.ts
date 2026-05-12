@@ -111,7 +111,7 @@ function checkRateLimit(map: Map<string, { count: number; lastReset: number }>, 
     return record.count > max;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const ip = getClientIP(request);
     const userAgent = request.headers.get('user-agent') || '';
