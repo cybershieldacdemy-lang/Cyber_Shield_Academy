@@ -10,6 +10,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { guardRoute } from '@/lib/api-guard';
 import db from '@/lib/db';
+export const dynamic = 'force-dynamic';
+
 
 export async function GET(request: NextRequest) {
   const { user, error } = await guardRoute(request, { requireAuth: true, requireAdmin: true });

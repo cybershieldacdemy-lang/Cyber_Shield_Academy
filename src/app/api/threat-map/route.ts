@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
+
 
 const COUNTRIES = [
   { code: 'US', ar: 'الولايات المتحدة', lat: 38.9, lng: -77.0, w: 18 },
