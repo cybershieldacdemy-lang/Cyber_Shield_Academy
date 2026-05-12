@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db, { statements } from '@/lib/db';
 import crypto from 'crypto';
 import { verifyToken } from '@/lib/auth';

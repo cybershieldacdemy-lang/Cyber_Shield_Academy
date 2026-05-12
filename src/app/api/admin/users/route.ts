@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db from '@/lib/db';
 import { getAuthUser, getRequestIP } from '@/lib/api-guard';
 import { logAudit } from '@/lib/data-protection';

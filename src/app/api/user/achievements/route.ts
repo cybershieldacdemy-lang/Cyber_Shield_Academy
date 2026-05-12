@@ -3,6 +3,7 @@
  * GET: Get user achievements + check for new unlocks
  */
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { getAuthUser } from '@/lib/api-guard';
 import { evaluateAchievements, getUserLevel, ACHIEVEMENTS } from '@/lib/gamification-engine';
 import db from '@/lib/db';

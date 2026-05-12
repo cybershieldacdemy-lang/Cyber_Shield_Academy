@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db from '@/lib/db';
 
 // In-memory cache (30s TTL — rankings don't change per-second)

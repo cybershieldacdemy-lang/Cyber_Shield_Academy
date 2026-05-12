@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { prisma as db } from '@/lib/db';
 
 export async function GET(request: Request) {

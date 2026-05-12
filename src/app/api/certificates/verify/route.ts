@@ -5,6 +5,7 @@
  * Returns certificate details + generates QR code data URL for public verification.
  */
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db from '@/lib/db';
 
 export async function GET(request: NextRequest) {

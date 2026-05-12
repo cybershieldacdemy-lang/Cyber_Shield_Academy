@@ -2,6 +2,7 @@
  * 🎓 AI Learning Suggestions — توصيات التعلم الذكية
  */
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db from '@/lib/db';
 import { generateSuggestions, isConfigured } from '@/lib/ai-engine';
 import { getAuthUser } from '@/lib/api-guard';

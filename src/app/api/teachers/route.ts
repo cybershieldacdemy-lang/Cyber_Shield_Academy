@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { statements } from '@/lib/db';
 
 // GET — List all teachers

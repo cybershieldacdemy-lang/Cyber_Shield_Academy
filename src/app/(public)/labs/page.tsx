@@ -1,5 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
+export const dynamic = 'force-dynamic';
+
 import { prisma as db } from '@/lib/db';
 import { Terminal, Shield, Cpu, Lock, Flame } from 'lucide-react';
 

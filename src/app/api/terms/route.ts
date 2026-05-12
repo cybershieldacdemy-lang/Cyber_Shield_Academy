@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db from '@/lib/db';
 
 // Cache for full terms listing (2-minute TTL)

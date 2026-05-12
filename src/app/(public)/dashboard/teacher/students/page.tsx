@@ -2,6 +2,8 @@ import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import db from '@/lib/db';
+export const dynamic = 'force-dynamic';
+
 
 export default async function TeacherStudentsPage() {
     const cookieStore = await cookies();

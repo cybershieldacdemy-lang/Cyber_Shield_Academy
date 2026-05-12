@@ -5,6 +5,7 @@
  * DELETE: Clear conversation
  */
 import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import db from '@/lib/db';
 import { chat, isConfigured, AIMessage, AIContext } from '@/lib/ai-engine';
 import { getAuthUser, getRequestIP } from '@/lib/api-guard';
